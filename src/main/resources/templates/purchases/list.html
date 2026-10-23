@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>在庫確認</title>
+    <style>
+        .expired { background: #ffd6d6; }   /* 期限切れ：赤 */
+        .soon    { background: #fff2b3; }   /* 3日以内：黄 */
+    </style>
+</head>
+<body>
+<h1>在庫確認</h1>
+
+<p>
+    <a th:href="@{/purchases/new}">＋ 買った</a> ／
+    <a th:href="@{/usages/new}">－ 使った</a> ／
+    <a th:href="@{/}">トップへ</a>
+</p>
+
+<p th:if="${#lists.isEmpty(stocks)}">在庫がありません。</p>
+
+<div th:each="st : ${storageTypes}">
+    <h2 th:text="${st.label}"></h2>
+    <table border="1">
+        <thead>
+        <tr>
+            <th>品目名</th>
+            <th>残り</th>
+            <th>消費期限</th>
+            <th>あと何日</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="s : ${stocks}" th:if="${s.storageType() == st}" th:class="${s.status()}">
+            <td th:text="${s.name()}"></td>
+            <td th:text="${s.quantityDisplay() + ' ' + s.unit()}"></td>
+            <td th:text="${s.expiryDate() != null ? s.expiryDate() : '―'}"></td>
+            <td th:text="${s.daysLeft() != null ? s.daysLeft() + '日' : '―'}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

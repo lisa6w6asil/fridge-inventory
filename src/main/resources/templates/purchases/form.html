@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>買った</title>
+</head>
+<body>
+<h1>買った</h1>
+
+<form th:action="@{/purchases}" th:object="${purchaseForm}" method="post">
+
+    <div>
+        <label>品目名</label>
+        <input type="text" th:field="*{name}">
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" style="color:red"></span>
+    </div>
+
+    <div>
+        <label>数量</label>
+        <input type="number" step="0.01" th:field="*{quantity}">
+        <span th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}" style="color:red"></span>
+    </div>
+
+    <div>
+        <label>単位</label>
+        <input type="text" th:field="*{unit}" placeholder="個・本・g など">
+        <span th:if="${#fields.hasErrors('unit')}" th:errors="*{unit}" style="color:red"></span>
+    </div>
+
+    <div>
+        <label>カテゴリ</label>
+        <input type="text" th:field="*{category}" placeholder="野菜・肉・魚 など">
+        <span th:if="${#fields.hasErrors('category')}" th:errors="*{category}" style="color:red"></span>
+    </div>
+
+    <div>
+        <label>保存方法</label>
+        <select th:field="*{storageType}">
+            <option value="">選択してください</option>
+            <option th:each="st : ${storageTypes}" th:value="${st}" th:text="${st.label}"></option>
+        </select>
+        <span th:if="${#fields.hasErrors('storageType')}" th:errors="*{storageType}" style="color:red"></span>
+    </div>
+
+    <div>
+        <label>消費期限</label>
+        <input type="date" th:field="*{expiryDate}">
+    </div>
+
+    <div>
+        <label>購入日</label>
+        <input type="date" th:field="*{purchasedDate}">
+        <span th:if="${#fields.hasErrors('purchasedDate')}" th:errors="*{purchasedDate}" style="color:red"></span>
+    </div>
+
+    <div>
+        <label>備考</label>
+        <input type="text" th:field="*{note}">
+        <span th:if="${#fields.hasErrors('note')}" th:errors="*{note}" style="color:red"></span>
+    </div>
+
+    <button type="submit">追加</button>
+</form>
+
+<p><a th:href="@{/purchases}">一覧へ戻る</a></p>
+</body>
+</html>
