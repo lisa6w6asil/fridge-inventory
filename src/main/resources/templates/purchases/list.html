@@ -1,44 +1,59 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>在庫確認</title>
-    <style>
-        .expired { background: #ffd6d6; }   /* 期限切れ：赤 */
-        .soon    { background: #fff2b3; }   /* 3日以内：黄 */
-    </style>
-</head>
+<head th:replace="~{fragments/layout :: head('買った記録')}"></head>
 <body>
-<h1>在庫確認</h1>
+<div class="app">
 
-<p>
-    <a th:href="@{/purchases/new}">＋ 買った</a> ／
-    <a th:href="@{/usages/new}">－ 使った</a> ／
-    <a th:href="@{/}">トップへ</a>
-</p>
+  <!-- 'purchases' を渡すと「買った記録」に色が付く -->
+  <nav th:replace="~{fragments/layout :: sidebar('purchases')}"></nav>
 
-<p th:if="${#lists.isEmpty(stocks)}">在庫がありません。</p>
+  <main class="main">
 
-<div th:each="st : ${storageTypes}">
-    <h2 th:text="${st.label}"></h2>
-    <table border="1">
-        <thead>
-        <tr>
-            <th>品目名</th>
-            <th>残り</th>
-            <th>消費期限</th>
-            <th>あと何日</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="s : ${stocks}" th:if="${s.storageType() == st}" th:class="${s.status()}">
-            <td th:text="${s.name()}"></td>
-            <td th:text="${s.quantityDisplay() + ' ' + s.unit()}"></td>
-            <td th:text="${s.expiryDate() != null ? s.expiryDate() : '―'}"></td>
-            <td th:text="${s.daysLeft() != null ? s.daysLeft() + '日' : '―'}"></td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="page-header">
+      <div>
+        <h1>買った記録</h1>
+        <p class="page-header__sub">購入日の新しい順</p>
+      </div>
+      <div class="page-header__actions">
+        <a class="btn btn--buy" th:href="@{/purchases/new}">＋ 買った</a>
+      </div>
+    </div>
+
+    <p class="card empty" th:if="${#lists.isEmpty(purchases)}">
+      まだ記録がありません。「＋ 買った」から登録できます。
+    </p>
+
+    <!-- PurchaseController が "purchases" という名前で渡している一覧を表にする -->
+    <section class="card" th:unless="${#lists.isEmpty(purchases)}">
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>購入日</th>
+              <th>品目名</th>
+              <th>数量</th>
+              <th>カテゴリ</th>
+              <th>保存方法</th>
+              <th>消費期限</th>
+              <th>備考</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="p : ${purchases}">
+              <td th:text="${#temporals.format(p.purchasedDate, 'yyyy/M/d')}">2026/10/26</td>
+              <td><strong th:text="${p.name}">牛乳</strong></td>
+              <td class="num" th:text="${p.quantityDisplay + ' ' + p.unit}">2 本</td>
+              <td th:text="${p.category}">乳製品</td>
+              <td th:text="${p.storageType.label}">冷蔵</td>
+              <td th:text="${p.expiryDate != null ? #temporals.format(p.expiryDate, 'yyyy/M/d') : '期限なし'}">2026/10/27</td>
+              <td th:text="${p.note} ?: ''"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
 </div>
 </body>
 </html>
