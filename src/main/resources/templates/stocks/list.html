@@ -1,44 +1,67 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>在庫確認</title>
-    <style>
-        .expired { background: #ffd6d6; }   /* 期限切れ：赤 */
-        .soon    { background: #fff2b3; }   /* 3日以内：黄 */
-    </style>
-</head>
+<!-- 共通部品から head を呼び出す(CSSとフォントの読み込みはここに入っている) -->
+<head th:replace="~{fragments/layout :: head('在庫確認')}"></head>
 <body>
-<h1>在庫確認</h1>
+<div class="app">
 
-<p>
-    <a th:href="@{/purchases/new}">＋ 買った</a> ／
-    <a th:href="@{/usages/new}">－ 使った</a> ／
-    <a th:href="@{/}">トップへ</a>
-</p>
+  <!-- 共通部品からサイドバーを呼び出す。'stocks' を渡すと「在庫確認」に色が付く -->
+  <nav th:replace="~{fragments/layout :: sidebar('stocks')}"></nav>
 
-<p th:if="${#lists.isEmpty(stocks)}">在庫がありません。</p>
+  <main class="main">
 
-<div th:each="st : ${storageTypes}">
-    <h2 th:text="${st.label}"></h2>
-    <table border="1">
-        <thead>
-        <tr>
-            <th>品目名</th>
-            <th>残り</th>
-            <th>消費期限</th>
-            <th>あと何日</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="s : ${stocks}" th:if="${s.storageType() == st}" th:class="${s.status()}">
-            <td th:text="${s.name()}"></td>
-            <td th:text="${s.quantityDisplay() + ' ' + s.unit()}"></td>
-            <td th:text="${s.expiryDate() != null ? s.expiryDate() : '―'}"></td>
-            <td th:text="${s.daysLeft() != null ? s.daysLeft() + '日' : '―'}"></td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="page-header">
+      <h1>在庫確認</h1>
+      <div class="page-header__actions">
+        <a class="btn btn--buy" th:href="@{/purchases/new}">＋ 買った</a>
+        <a class="btn btn--use" th:href="@{/usages/new}">－ 使った</a>
+      </div>
+    </div>
+
+    <p class="card empty" th:if="${#lists.isEmpty(stocks)}">
+      在庫がありません。「＋ 買った」から登録できます。
+    </p>
+
+    <!-- 期限切れ・期限が近いものだけを抜き出して、上の帯に並べる -->
+    <th:block th:with="urgent=${stocks.?[status() == 'expired' or status() == 'soon']}">
+      <section class="card alert-strip" th:if="${not #lists.isEmpty(urgent)}">
+        <h2>期限が近いもの</h2>
+        <span class="alert-chip" th:each="u : ${urgent}">
+          <span th:text="${u.name()}">牛乳</span>
+          <span th:if="${u.status() == 'expired'}" class="badge badge--expired">期限切れ</span>
+          <span th:if="${u.status() == 'soon'}" class="badge badge--soon"
+                th:text="${u.daysLeft() == 0 ? '今日まで' : 'あと' + u.daysLeft() + '日'}">あと1日</span>
+        </span>
+      </section>
+    </th:block>
+
+    <!-- 冷蔵・冷凍・常温を横に並べる(狭い画面では自動で縦に積まれる) -->
+    <div class="stock-grid" th:unless="${#lists.isEmpty(stocks)}">
+      <section class="card" th:each="st : ${storageTypes}">
+        <div class="stock-col__head">
+          <h2 th:text="${st.label}">冷蔵</h2>
+        </div>
+
+        <div class="stock-row" th:each="s : ${stocks}" th:if="${s.storageType() == st}">
+          <div class="stock-row__name">
+            <strong th:text="${s.name()}">牛乳</strong>
+            <span class="stock-row__date"
+                  th:text="${s.expiryDate() != null ? '期限 ' + #temporals.format(s.expiryDate(), 'M/d') : '期限なし'}">期限 10/27</span>
+          </div>
+          <span class="stock-row__qty">
+            <span th:text="${s.quantityDisplay()}">1.5</span>
+            <span class="stock-row__unit" th:text="${s.unit()}">本</span>
+          </span>
+          <span th:if="${s.status() == 'expired'}" class="badge badge--expired">期限切れ</span>
+          <span th:if="${s.status() == 'soon'}" class="badge badge--soon"
+                th:text="${s.daysLeft() == 0 ? '今日まで' : 'あと' + s.daysLeft() + '日'}">あと1日</span>
+          <span th:if="${s.status() != 'expired' and s.status() != 'soon' and s.daysLeft() != null}"
+                class="badge badge--ok" th:text="'あと' + ${s.daysLeft()} + '日'">あと8日</span>
+        </div>
+      </section>
+    </div>
+
+  </main>
 </div>
 </body>
 </html>
