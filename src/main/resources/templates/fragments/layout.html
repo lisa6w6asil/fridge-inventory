@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!--
+  共通部品の置き場
+  置き場所: src/main/resources/templates/fragments/layout.html
+  各画面からの呼び出し方:
+    <head th:replace="~{fragments/layout :: head('在庫確認')}"></head>
+    <nav th:replace="~{fragments/layout :: sidebar('stocks')}"></nav>
+-->
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<!-- ① head部品:タイトルだけ画面ごとに変える -->
+<head th:fragment="head(title)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' | 食材管理'">食材管理</title>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+<!-- ② サイドバー部品:今いる画面の名前を渡すと、そのメニューに色が付く -->
+<nav class="sidebar" th:fragment="sidebar(active)" aria-label="メイン">
+  <p class="sidebar__title">食材管理</p>
+  <div class="sidebar__nav">
+    <!-- URLはりさのControllerの@GetMappingに合わせて直す -->
+    <a class="sidebar__link" th:href="@{/stocks}"
+       th:classappend="${active == 'stocks'} ? 'is-active'">在庫確認</a>
+    <a class="sidebar__link" th:href="@{/purchases/new}"
+       th:classappend="${active == 'purchase-new'} ? 'is-active'">買った</a>
+    <a class="sidebar__link" th:href="@{/usages/new}"
+       th:classappend="${active == 'usage-new'} ? 'is-active'">使った</a>
+    <a class="sidebar__link" th:href="@{/purchases}"
+       th:classappend="${active == 'purchases'} ? 'is-active'">買った記録</a>
+  </div>
+</nav>
+</body>
+</html>

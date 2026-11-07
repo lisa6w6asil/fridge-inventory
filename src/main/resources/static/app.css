@@ -1,0 +1,267 @@
+/* =========================================
+   食材管理アプリ 共通スタイル
+   置き場所: src/main/resources/static/css/app.css
+   方針: 狭い画面を基本に書き、広い画面向けの指定を後から足す(モバイルファースト)
+   ========================================= */
+
+/* ---------- 色と文字の決まりごと(ここを変えると全画面に反映) ---------- */
+:root {
+    --bg: #FBF8F1;          /* 生成りの背景 */
+    --surface: #FFFFFF;     /* カードの白 */
+    --line: #E8E2D4;        /* 枠線 */
+    --line-soft: #F0EBE0;   /* 行の区切り線 */
+    --text: #2E3338;        /* 本文 */
+    --text-sub: #5F6670;    /* 補足の文字 */
+    --blue: #AFCEDE;        /* 「買った」の色 */
+    --blue-ink: #1F3440;
+    --blue-soft: #E6F0F5;
+    --yellow: #F3D998;      /* 「使った」・期限が近いの色 */
+    --yellow-ink: #5A4300;
+    --red: #B4442A;         /* 期限切れ */
+    --primary: #2E5568;     /* 決定ボタン */
+    --error-bg: #FBEDE8;
+    --error-ink: #8A3320;
+    --font-body: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+    --font-head: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif;
+  }
+  
+  *, *::before, *::after { box-sizing: border-box; }
+  
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  
+  a { color: var(--primary); }
+  
+  /* キーボード操作でも今どこにいるか見えるようにする */
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  
+  /* ---------- 全体の枠(サイドバー + 中身) ---------- */
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+  
+  .sidebar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .sidebar__title {
+    margin: 0 8px;
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .sidebar__nav { display: flex; flex-wrap: wrap; gap: 4px; }
+  .sidebar__link {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    border-radius: 12px;
+    color: #4F5660;
+    text-decoration: none;
+  }
+  .sidebar__link:hover { background: var(--bg); }
+  .sidebar__link.is-active { background: var(--blue-soft); color: var(--blue-ink); font-weight: 700; }
+  
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 24px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  /* 広い画面ではサイドバーを左に固定する */
+  @media (min-width: 768px) {
+    .app { flex-direction: row; }
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      border-bottom: 0;
+      border-right: 1px solid var(--line);
+      padding: 32px 20px;
+      gap: 28px;
+    }
+    .sidebar__nav { flex-direction: column; }
+    .main { padding: 32px 40px 40px; }
+  }
+  
+  /* ---------- ページの見出し ---------- */
+  .page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .page-header h1 {
+    margin: 0;
+    font-family: var(--font-head);
+    font-size: 28px;
+    font-weight: 700;
+  }
+  .page-header__sub { margin: 4px 0 0; font-size: 13px; color: var(--text-sub); }
+  .page-header__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  
+  /* ---------- ボタン ---------- */
+  .btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .btn--buy { background: var(--blue); color: var(--blue-ink); }
+  .btn--use { background: var(--yellow); color: #3D3110; }
+  .btn--primary {
+    background: var(--primary);
+    color: #FFFFFF;
+    border-radius: 12px;
+    padding: 0 32px;
+    font-family: var(--font-head);
+  }
+  .btn--ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid #D9D1BF;
+    border-radius: 12px;
+    font-weight: 400;
+  }
+  
+  /* ---------- カード ---------- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .card h2 {
+    margin: 0 0 10px;
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  
+  /* ---------- 期限のバッジ(色＋文字で伝える) ---------- */
+  .badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .badge--expired { background: var(--red); color: #FFFFFF; }
+  .badge--soon { background: var(--yellow); color: var(--yellow-ink); }
+  .badge--ok { background: #ECF1F4; color: #3F4A55; font-weight: 500; }
+  
+  /* ---------- 在庫確認:期限が近いものの帯 ---------- */
+  .alert-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+  .alert-strip h2 { margin: 0 8px 0 0; }
+  .alert-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border-radius: 999px;
+    padding: 6px 8px 6px 14px;
+    font-size: 14px;
+  }
+  
+  /* ---------- 在庫確認:冷蔵・冷凍・常温の列 ---------- */
+  .stock-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    align-items: start;
+  }
+  .stock-col__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .stock-col__count { font-size: 13px; color: var(--text-sub); }
+  .stock-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  .stock-row__name { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .stock-row__name strong { font-size: 15px; }
+  .stock-row__date { font-size: 12px; color: var(--text-sub); }
+  .stock-row__qty { font-weight: 700; white-space: nowrap; }
+  .stock-row__unit { font-size: 12px; font-weight: 500; }
+  .empty { margin: 8px 0 12px; font-size: 13px; color: var(--text-sub); }
+  
+  /* ---------- フォーム ---------- */
+  .form { display: flex; flex-direction: column; gap: 20px; max-width: 640px; }
+  .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field label { font-size: 13px; font-weight: 700; }
+  .field__optional { font-weight: 400; color: var(--text-sub); }
+  .field input,
+  .field select,
+  .field textarea {
+    min-height: 48px;
+    border: 1px solid #D9D1BF;
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 0 16px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .field textarea { padding: 12px 16px; min-height: 96px; }
+  .field__hint { margin: 0; font-size: 12px; color: var(--text-sub); }
+  .field__error { margin: 0; font-size: 13px; color: var(--error-ink); }
+  .form-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end; }
+  
+  /* 画面上部に出すエラーのまとめ */
+  .error-box {
+    background: var(--error-bg);
+    color: var(--error-ink);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  
+  /* ---------- 一覧の表(買った記録) ---------- */
+  .table-wrap { overflow-x: auto; }
+  .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .table th {
+    text-align: left;
+    font-size: 12px;
+    color: var(--text-sub);
+    font-weight: 700;
+    padding: 0 12px 10px;
+    white-space: nowrap;
+  }
+  .table td {
+    padding: 12px;
+    border-top: 1px solid var(--line-soft);
+    white-space: nowrap;
+  }
+  .table td.num { text-align: right; }
