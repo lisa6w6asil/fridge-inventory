@@ -1,52 +1,79 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>使った</title>
-</head>
+<head th:replace="~{fragments/layout :: head('使った')}"></head>
 <body>
-<h1>使った</h1>
+<div class="app">
 
-<p th:if="${#lists.isEmpty(stocks)}">在庫がありません。先に「買った」から登録してください。</p>
+  <!-- 'usage-new' を渡すと「使った」に色が付く -->
+  <nav th:replace="~{fragments/layout :: sidebar('usage-new')}"></nav>
 
-<form th:action="@{/usages}" th:object="${usageForm}" method="post">
+  <main class="main">
 
-    <div>
-        <label>使ったもの</label>
+    <div class="page-header">
+      <div>
+        <h1>使った</h1>
+        <p class="page-header__sub">在庫から選んで、使った量を記録します</p>
+      </div>
+    </div>
+
+    <!-- 在庫がひとつもないときは、フォームの代わりに「買った」への案内を出す -->
+    <section class="card" th:if="${#lists.isEmpty(stocks)}">
+      <p class="empty">在庫がありません。先に「買った」から登録してください。</p>
+      <a class="btn btn--buy" th:href="@{/purchases/new}">＋ 買った</a>
+    </section>
+
+    <!-- th:action・th:object・th:field と stocks の書き方は元のファイルから一文字も変えていない -->
+    <form class="card form" th:unless="${#lists.isEmpty(stocks)}"
+          th:action="@{/usages}" th:object="${usageForm}" method="post">
+
+      <p class="error-box" th:if="${#fields.hasAnyErrors()}">
+        入力内容に直すところがあります。各項目の下の赤い文字を確認してください。
+      </p>
+      <!-- 項目に結びつかないエラー(画面全体へのエラー)があれば、ここに出す -->
+      <p class="error-box" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
+
+      <div class="field">
+        <label for="stockId">使ったもの</label>
         <select th:field="*{stockId}">
-            <option value="">選択してください</option>
-            <option th:each="s : ${stocks}" th:value="${s.stockId()}" th:text="${s.label()}"></option>
+          <option value="">選択してください</option>
+          <option th:each="s : ${stocks}" th:value="${s.stockId()}" th:text="${s.label()}">牛乳(期限 10/27・冷蔵・残り 1.5 本)</option>
         </select>
-        <span th:if="${#fields.hasErrors('stockId')}" th:errors="*{stockId}" style="color:red"></span>
-    </div>
+        <p class="field__error" th:if="${#fields.hasErrors('stockId')}" th:errors="*{stockId}"></p>
+      </div>
 
-    <div>
-        <label>数量</label>
-        <input type="number" step="0.01" th:field="*{quantity}">
-        <span th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}" style="color:red"></span>
-    </div>
+      <div class="form-row">
+        <div class="field">
+          <label for="quantity">数量</label>
+          <input type="number" step="0.01" th:field="*{quantity}">
+          <p class="field__hint">選んだ在庫の残りの数まで記録できます</p>
+          <p class="field__error" th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"></p>
+        </div>
+        <div class="field">
+          <label for="usedDate">使った日</label>
+          <input type="date" th:field="*{usedDate}">
+          <p class="field__error" th:if="${#fields.hasErrors('usedDate')}" th:errors="*{usedDate}"></p>
+        </div>
+      </div>
 
-    <div>
-        <label>使った日</label>
-        <input type="date" th:field="*{usedDate}">
-        <span th:if="${#fields.hasErrors('usedDate')}" th:errors="*{usedDate}" style="color:red"></span>
-    </div>
-
-    <div>
-        <label>何に</label>
+      <div class="field">
+        <label for="purpose">何に <span class="field__optional">(任意)</span></label>
         <input type="text" th:field="*{purpose}" placeholder="カレー など">
-        <span th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}" style="color:red"></span>
-    </div>
+        <p class="field__error" th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}"></p>
+      </div>
 
-    <div>
-        <label>備考</label>
+      <div class="field">
+        <label for="note">備考 <span class="field__optional">(任意)</span></label>
         <input type="text" th:field="*{note}">
-        <span th:if="${#fields.hasErrors('note')}" th:errors="*{note}" style="color:red"></span>
-    </div>
+        <p class="field__error" th:if="${#fields.hasErrors('note')}" th:errors="*{note}"></p>
+      </div>
 
-    <button type="submit">追加</button>
-</form>
+      <div class="form-actions">
+        <a class="btn btn--ghost" th:href="@{/stocks}">在庫へ戻る</a>
+        <button class="btn btn--primary" type="submit">記録する</button>
+      </div>
+    </form>
 
-<p><a th:href="@{/}">トップへ</a></p>
+  </main>
+</div>
 </body>
 </html>
