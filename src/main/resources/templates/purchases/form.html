@@ -85,7 +85,7 @@
       </div>
 
       <div class="form-actions">
-        <a class="btn btn--ghost" th:if="${purchaseId == null}" th:href="@{/purchases}">一覧へ戻る</a>
+        <a class="btn btn--ghost" th:if="${purchaseId == null}" th:href="@{/records}">一覧へ戻る</a>
         <a class="btn btn--ghost" th:unless="${purchaseId == null}" th:href="@{/purchases/{id}(id=${purchaseId})}">詳細へ戻る</a>
         <button class="btn btn--primary" type="submit" th:text="${purchaseId == null} ? '記録する' : '変更する'">記録する</button>
       </div>

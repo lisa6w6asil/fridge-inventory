@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('記録の詳細')}"></head>
+<body>
+<div class="app">
+
+  <nav th:replace="~{fragments/layout :: sidebar('purchases')}"></nav>
+
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <h1 th:text="${usage.name}">にんじん</h1>
+        <p class="page-header__sub">使った記録の詳細</p>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="table-wrap">
+        <table class="table">
+          <tbody>
+            <tr><th>使った日</th><td th:text="${#temporals.format(usage.usedDate, 'yyyy/M/d')}">2026/11/13</td></tr>
+            <tr><th>数量</th><td th:text="${usage.quantityDisplay + ' ' + unit}">1 本</td></tr>
+            <tr><th>保存方法</th><td th:text="${usage.storageType.label}">冷蔵</td></tr>
+            <tr><th>消費期限</th><td th:text="${usage.expiryDate != null ? #temporals.format(usage.expiryDate, 'yyyy/M/d') : '期限なし'}">2026/11/20</td></tr>
+            <tr><th>何に</th><td th:text="${usage.purpose} ?: 'なし'">カレー</td></tr>
+            <tr><th>備考</th><td th:text="${usage.note} ?: 'なし'"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn btn--ghost" th:href="@{/records}">一覧へ戻る</a>
+        <form th:action="@{/usages/{id}/delete(id=${usage.id})}" method="post"
+              onsubmit="return confirm('この記録を削除しますか？ 削除すると、その分の在庫が戻ります。');">
+          <button class="btn btn--ghost" type="submit">削除</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

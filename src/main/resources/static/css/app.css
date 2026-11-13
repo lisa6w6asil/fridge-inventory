@@ -271,3 +271,7 @@
   .table tr[data-href]:hover td { background: var(--bg); }
   .table__link { color: inherit; text-decoration: none; }
   .table__link:hover { text-decoration: underline; }
+
+  /* 記録の編集:買った・使ったの見分け（アプリの色の決まりに合わせる） */
+  .badge--buy { background: var(--blue-soft); color: var(--blue-ink); }
+  .badge--use { background: var(--yellow); color: var(--yellow-ink); }

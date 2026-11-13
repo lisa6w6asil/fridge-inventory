@@ -33,7 +33,7 @@
       </div>
 
       <div class="form-actions">
-        <a class="btn btn--ghost" th:href="@{/purchases}">一覧へ戻る</a>
+        <a class="btn btn--ghost" th:href="@{/records}">一覧へ戻る</a>
         <a class="btn btn--primary" th:href="@{/purchases/{id}/edit(id=${purchase.id})}">編集</a>
         <form th:action="@{/purchases/{id}/delete(id=${purchase.id})}" method="post"
               onsubmit="return confirm('この記録を削除しますか？');">

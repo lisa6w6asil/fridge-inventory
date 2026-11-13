@@ -31,4 +31,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
     /** 上と同じだが、編集中の記録そのものは除いて探す（編集時の単位チェック用） */
     Optional<Purchase> findFirstByNameAndUnitNotAndIdNot(String name, String unit, Long id);
+
+    /** 品目名で記録を1件探す（使った記録に単位を表示するため） */
+    Optional<Purchase> findFirstByName(String name);
 }

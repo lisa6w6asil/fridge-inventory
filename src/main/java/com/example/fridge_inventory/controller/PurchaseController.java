@@ -44,8 +44,8 @@ public class PurchaseController {
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("purchases", purchaseService.findAllNewestFirst());
-        return "purchases/list";
+        // 一覧は「記録の編集」（/records）にまとめたので、そちらへ転送する
+        return "redirect:/records";
     }
 
     @GetMapping("/new")
@@ -70,7 +70,7 @@ public class PurchaseController {
             model.addAttribute("storageTypes", StorageType.values());
             return "purchases/form";
         }
-        return "redirect:/purchases";
+        return "redirect:/records";
     }
 
     @GetMapping("/{id}")
@@ -78,7 +78,7 @@ public class PurchaseController {
         Optional<Purchase> purchase = purchaseService.findById(id);
         if (purchase.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "その記録は見つかりません");
-            return "redirect:/purchases";
+            return "redirect:/records";
         }
         model.addAttribute("purchase", purchase.get());
         return "purchases/detail";
@@ -89,7 +89,7 @@ public class PurchaseController {
         Optional<Purchase> purchase = purchaseService.findById(id);
         if (purchase.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "その記録は見つかりません");
-            return "redirect:/purchases";
+            return "redirect:/records";
         }
         model.addAttribute("purchaseForm", PurchaseForm.from(purchase.get()));
         model.addAttribute("purchaseId", id);
@@ -126,7 +126,7 @@ public class PurchaseController {
         try {
             purchaseService.delete(id);
             redirectAttributes.addFlashAttribute("message", "削除しました");
-            return "redirect:/purchases";
+            return "redirect:/records";
         } catch (PurchaseDeleteRejectedException e) {
             // 断られたときは、詳細画面に戻して理由を見せる
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
