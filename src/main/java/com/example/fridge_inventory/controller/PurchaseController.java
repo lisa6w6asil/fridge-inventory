@@ -18,6 +18,7 @@ import com.example.fridge_inventory.form.PurchaseForm;
 import com.example.fridge_inventory.service.PurchaseDeleteRejectedException;
 import com.example.fridge_inventory.service.PurchaseService;
 import com.example.fridge_inventory.service.PurchaseUpdateRejectedException;
+import com.example.fridge_inventory.service.UnitMismatchException;
 
 import jakarta.validation.Valid;
 
@@ -62,7 +63,13 @@ public class PurchaseController {
             model.addAttribute("storageTypes", StorageType.values());
             return "purchases/form";
         }
-        purchaseService.register(purchaseForm);
+        try {
+            purchaseService.register(purchaseForm);
+        } catch (UnitMismatchException e) {
+            bindingResult.rejectValue("unit", "mismatch", e.getMessage());
+            model.addAttribute("storageTypes", StorageType.values());
+            return "purchases/form";
+        }
         return "redirect:/purchases";
     }
 
@@ -104,6 +111,8 @@ public class PurchaseController {
             } catch (PurchaseUpdateRejectedException e) {
                 // 特定の入力欄ではなく、画面全体へのエラーとして出す
                 bindingResult.reject("rejected", e.getMessage());
+            } catch (UnitMismatchException e) {
+                bindingResult.rejectValue("unit", "mismatch", e.getMessage());
             }
         }
         model.addAttribute("purchaseId", id);
