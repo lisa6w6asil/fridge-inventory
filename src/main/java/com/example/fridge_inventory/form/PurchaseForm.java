@@ -12,6 +12,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -23,6 +24,7 @@ public class PurchaseForm {
 
     @NotBlank(message = "品目名を入力してください")
     @Size(max = 50, message = "品目名は50文字以内で入力してください")
+    @Pattern(regexp = "[^|]*", message = "品目名に「|」は使えません")
     private String name;
 
     @NotNull(message = "数量を入力してください")
