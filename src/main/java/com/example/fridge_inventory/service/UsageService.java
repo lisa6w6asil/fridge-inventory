@@ -24,9 +24,9 @@ public class UsageService {
 
     @Transactional
     public void register(UsageForm form) {
-        StockItem stock = stockService.findStock(form.getStockId())
+        StockItem stock = stockService.findStock(form.getStockKey())
                 .orElseThrow(() -> new UsageRejectedException(
-                        "stockId", "notFound", "選んだ食材の在庫が見つかりません"));
+                        "stockKey", "notFound", "選んだ食材の在庫が見つかりません"));
 
         if (form.quantityInHundredths() > stock.remaining()) {
             throw new UsageRejectedException("quantity", "exceeds",

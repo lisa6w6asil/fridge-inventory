@@ -33,20 +33,19 @@ public class StockService {
 
     /** 残りがある在庫を、保存方法 → 期限の近い順 → 名前順 で返す */
     public List<StockItem> findAllStocks() {
-        // 1. 使った合計を「まとまりの鍵」ごとに表にしておく
+        // 1. 使った合計を「在庫の目印」ごとに表にしておく
         Map<String, Long> usedByKey = new HashMap<>();
         for (UsageTotal u : usageRepository.sumByGroup()) {
-            usedByKey.put(key(u.name(), u.expiryDate(), u.storageType()), u.total());
+            usedByKey.put(StockItem.keyOf(u.name(), u.expiryDate(), u.storageType()), u.total());
         }
 
         // 2. 買った合計から使った合計を引いて、残りがあるものだけ在庫にする
         List<StockItem> stocks = new ArrayList<>();
         for (PurchaseTotal p : purchaseRepository.sumByGroup()) {
-            long used = usedByKey.getOrDefault(key(p.name(), p.expiryDate(), p.storageType()), 0L);
+            long used = usedByKey.getOrDefault(StockItem.keyOf(p.name(), p.expiryDate(), p.storageType()), 0L);
             long remaining = p.total() - used;
             if (remaining > 0) {
-                stocks.add(new StockItem(p.representativeId(), p.name(), p.unit(),
-                        p.expiryDate(), p.storageType(), remaining));
+                stocks.add(new StockItem(p.name(), p.unit(), p.expiryDate(), p.storageType(), remaining));
             }
         }
 
@@ -57,18 +56,13 @@ public class StockService {
         return stocks;
     }
 
-    /** プルダウンで選ばれた在庫を探す */
-    public Optional<StockItem> findStock(Long stockId) {
+    /** プルダウンで選ばれた目印から在庫を探す */
+    public Optional<StockItem> findStock(String key) {
         for (StockItem s : findAllStocks()) {
-            if (s.stockId().equals(stockId)) {
+            if (s.key().equals(key)) {
                 return Optional.of(s);
             }
         }
         return Optional.empty();
-    }
-
-    // 品目名＋期限＋保存方法 を1つの文字列にした「まとまりの鍵」（このクラスの中だけで使う）
-    private String key(String name, Object expiryDate, Object storageType) {
-        return name + "|" + expiryDate + "|" + storageType;
     }
 }

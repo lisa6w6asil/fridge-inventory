@@ -19,7 +19,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
      */
     @Query("""
             select new com.example.fridge_inventory.dto.PurchaseTotal(
-                min(p.id), p.name, max(p.unit), p.expiryDate, p.storageType, sum(p.quantity))
+                p.name, max(p.unit), p.expiryDate, p.storageType, sum(p.quantity))
             from Purchase p
             group by p.name, p.expiryDate, p.storageType
             """)

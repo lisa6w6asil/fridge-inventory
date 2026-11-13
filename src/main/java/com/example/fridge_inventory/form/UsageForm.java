@@ -10,6 +10,7 @@ import com.example.fridge_inventory.entity.Usage;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -19,9 +20,9 @@ import jakarta.validation.constraints.Size;
  */
 public class UsageForm {
 
-    // プルダウンで選んだ在庫の目印（StockItem.stockId）
-    @NotNull(message = "使った食材を選んでください")
-    private Long stockId;
+    // プルダウンで選んだ在庫の目印（StockItem.key()）
+    @NotBlank(message = "使った食材を選んでください")
+    private String stockKey;
 
     @NotNull(message = "数量を入力してください")
     @DecimalMin(value = "0.01", message = "数量は0より大きい値を入力してください")
@@ -58,12 +59,12 @@ public class UsageForm {
 
     // ---- getter / setter ----
 
-    public Long getStockId() {
-        return stockId;
+    public String getStockKey() {
+        return stockKey;
     }
 
-    public void setStockId(Long stockId) {
-        this.stockId = stockId;
+    public void setStockKey(String stockKey) {
+        this.stockKey = stockKey;
     }
 
     public BigDecimal getQuantity() {

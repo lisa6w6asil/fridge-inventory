@@ -11,12 +11,26 @@ import com.example.fridge_inventory.entity.StorageType;
  * remaining は「買った合計 − 使った合計」で、100倍の整数。
  */
 public record StockItem(
-        Long stockId,
         String name,
         String unit,
         LocalDate expiryDate,
         StorageType storageType,
         long remaining) {
+
+    /**
+     * 品目名＋期限＋保存方法 をつないだ「在庫の目印」を作る。
+     * 例：にんじん|2026-11-20|REFRIGERATED（期限なしは真ん中が空）
+     * 買った記録の番号を借りないので、記録を消しても目印は変わらない。
+     */
+    public static String keyOf(String name, LocalDate expiryDate, StorageType storageType) {
+        String expiry = (expiryDate == null) ? "" : expiryDate.toString();
+        return name + "|" + expiry + "|" + storageType.name();
+    }
+
+    /** この在庫の目印（プルダウンで選んだときに送られる値） */
+    public String key() {
+        return keyOf(name, expiryDate, storageType);
+    }
 
     /** 画面表示用の残り数量。例：150 → "1.5" */
     public String quantityDisplay() {

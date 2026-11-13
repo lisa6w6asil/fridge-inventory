@@ -33,12 +33,12 @@
       <p class="error-box" th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
 
       <div class="field">
-        <label for="stockId">使ったもの</label>
-        <select th:field="*{stockId}">
+        <label for="stockKey">使ったもの</label>
+        <select th:field="*{stockKey}">
           <option value="">選択してください</option>
-          <option th:each="s : ${stocks}" th:value="${s.stockId()}" th:text="${s.label()}">牛乳(期限 10/27・冷蔵・残り 1.5 本)</option>
+          <option th:each="s : ${stocks}" th:value="${s.key()}" th:text="${s.label()}">牛乳(期限 10/27・冷蔵・残り 1.5 本)</option>
         </select>
-        <p class="field__error" th:if="${#fields.hasErrors('stockId')}" th:errors="*{stockId}"></p>
+        <p class="field__error" th:if="${#fields.hasErrors('stockKey')}" th:errors="*{stockKey}"></p>
       </div>
 
       <div class="form-row">
