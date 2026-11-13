@@ -1,6 +1,5 @@
 package com.example.fridge_inventory.controller;
 
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,36 +10,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.example.fridge_inventory.entity.StorageType;
 import com.example.fridge_inventory.form.PurchaseForm;
-import com.example.fridge_inventory.repository.PurchaseRepository;
+import com.example.fridge_inventory.service.PurchaseService;
 
 import jakarta.validation.Valid;
 
 /**
- * 「買った」機能の画面とURLをつなぐクラス。
+ * 「買った」機能の窓口。
  *   GET  /purchases      … 買った記録の一覧
  *   GET  /purchases/new  … 登録画面
- *   POST /purchases      … 登録処理
+ *   POST /purchases      … 登録処理（保存は PurchaseService に任せる）
  */
 @Controller
 @RequestMapping("/purchases")
 public class PurchaseController {
 
-    private final PurchaseRepository purchaseRepository;
+    private final PurchaseService purchaseService;
 
-    // コンストラクタでRepositoryを受け取る（Springが自動で渡してくれる）
-    public PurchaseController(PurchaseRepository purchaseRepository) {
-        this.purchaseRepository = purchaseRepository;
+    public PurchaseController(PurchaseService purchaseService) {
+        this.purchaseService = purchaseService;
     }
 
-    // 一覧（購入日の新しい順）
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("purchases",
-                purchaseRepository.findAll(Sort.by(Sort.Direction.DESC, "purchasedDate", "id")));
+        model.addAttribute("purchases", purchaseService.findAllNewestFirst());
         return "purchases/list";
     }
 
-    // 登録画面を表示
     @GetMapping("/new")
     public String newForm(Model model) {
         model.addAttribute("purchaseForm", new PurchaseForm());
@@ -48,7 +43,6 @@ public class PurchaseController {
         return "purchases/form";
     }
 
-    // 登録処理。入力エラーがあれば画面に戻す
     @PostMapping
     public String create(@Valid @ModelAttribute PurchaseForm purchaseForm,
                          BindingResult bindingResult,
@@ -57,7 +51,7 @@ public class PurchaseController {
             model.addAttribute("storageTypes", StorageType.values());
             return "purchases/form";
         }
-        purchaseRepository.save(purchaseForm.toEntity());
+        purchaseService.register(purchaseForm);
         return "redirect:/purchases";
     }
 }
