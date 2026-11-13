@@ -19,6 +19,10 @@
       </div>
     </div>
 
+    <!-- 削除のあとに、結果のメッセージを出す -->
+    <p class="card" th:if="${message}" th:text="${message}">削除しました</p>
+    <p class="error-box" th:if="${errorMessage}" th:text="${errorMessage}">削除できません</p>
+
     <p class="card empty" th:if="${#lists.isEmpty(purchases)}">
       まだ記録がありません。「＋ 買った」から登録できます。
     </p>
@@ -36,6 +40,7 @@
               <th>保存方法</th>
               <th>消費期限</th>
               <th>備考</th>
+              <th class="col-actions"></th>
             </tr>
           </thead>
           <tbody>
@@ -47,6 +52,12 @@
               <td th:text="${p.storageType.label}">冷蔵</td>
               <td th:text="${p.expiryDate != null ? #temporals.format(p.expiryDate, 'yyyy/M/d') : '期限なし'}">2026/10/27</td>
               <td th:text="${p.note} ?: ''"></td>
+              <td class="col-actions">
+                <form th:action="@{/purchases/{id}/delete(id=${p.id})}" method="post"
+                      onsubmit="return confirm('この記録を削除しますか？');">
+                  <button class="btn btn--ghost" type="submit">削除</button>
+                </form>
+              </td>
             </tr>
           </tbody>
         </table>

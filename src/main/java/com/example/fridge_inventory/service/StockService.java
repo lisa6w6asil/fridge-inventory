@@ -56,6 +56,28 @@ public class StockService {
         return stocks;
     }
 
+    /**
+     * 目印1つ分の残り（買った合計 − 使った合計）を返す。
+     * findAllStocks と違い、0やマイナスでも捨てずにそのまま返す。
+     */
+    public long remainingOf(String key) {
+        long bought = 0;
+        for (PurchaseTotal p : purchaseRepository.sumByGroup()) {
+            if (StockItem.keyOf(p.name(), p.expiryDate(), p.storageType()).equals(key)) {
+                bought = p.total();
+                break;
+            }
+        }
+        long used = 0;
+        for (UsageTotal u : usageRepository.sumByGroup()) {
+            if (StockItem.keyOf(u.name(), u.expiryDate(), u.storageType()).equals(key)) {
+                used = u.total();
+                break;
+            }
+        }
+        return bought - used;
+    }
+
     /** プルダウンで選ばれた目印から在庫を探す */
     public Optional<StockItem> findStock(String key) {
         for (StockItem s : findAllStocks()) {
