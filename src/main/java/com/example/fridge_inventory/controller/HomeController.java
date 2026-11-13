@@ -4,7 +4,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
- * トップ画面（買った・使った・在庫確認のメニュー）。
+ * トップ（/）へのアクセスを在庫確認画面（/stocks）へ転送する。
+ * メニューは左サイドバーにあるため、専用のトップ画面は持たない。
  */
 @Controller
 public class HomeController {
