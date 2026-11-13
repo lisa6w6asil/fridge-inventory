@@ -266,3 +266,8 @@
     white-space: nowrap;
   }
   .table td.num { text-align: right; }
+  /* 一覧の行を押せることが伝わるように、指の形とホバー時の色を付ける */
+  .table tr[data-href] { cursor: pointer; }
+  .table tr[data-href]:hover td { background: var(--bg); }
+  .table__link { color: inherit; text-decoration: none; }
+  .table__link:hover { text-decoration: underline; }

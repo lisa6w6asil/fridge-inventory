@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('買った記録の詳細')}"></head>
+<body>
+<div class="app">
+
+  <nav th:replace="~{fragments/layout :: sidebar('purchases')}"></nav>
+
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <h1 th:text="${purchase.name}">にんじん</h1>
+        <p class="page-header__sub">買った記録の詳細</p>
+      </div>
+    </div>
+
+    <p class="error-box" th:if="${errorMessage}" th:text="${errorMessage}">削除できません</p>
+
+    <section class="card">
+      <div class="table-wrap">
+        <table class="table">
+          <tbody>
+            <tr><th>購入日</th><td th:text="${#temporals.format(purchase.purchasedDate, 'yyyy/M/d')}">2026/11/13</td></tr>
+            <tr><th>数量</th><td th:text="${purchase.quantityDisplay + ' ' + purchase.unit}">3 本</td></tr>
+            <tr><th>カテゴリ</th><td th:text="${purchase.category}">野菜</td></tr>
+            <tr><th>保存方法</th><td th:text="${purchase.storageType.label}">冷蔵</td></tr>
+            <tr><th>消費期限</th><td th:text="${purchase.expiryDate != null ? #temporals.format(purchase.expiryDate, 'yyyy/M/d') : '期限なし'}">2026/11/20</td></tr>
+            <tr><th>備考</th><td th:text="${purchase.note} ?: 'なし'">カレー用</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn btn--ghost" th:href="@{/purchases}">一覧へ戻る</a>
+        <form th:action="@{/purchases/{id}/delete(id=${purchase.id})}" method="post"
+              onsubmit="return confirm('この記録を削除しますか？');">
+          <button class="btn btn--ghost" type="submit">削除</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+</div>
+</body>
+</html>

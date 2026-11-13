@@ -1,6 +1,7 @@
 package com.example.fridge_inventory.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ import com.example.fridge_inventory.form.PurchaseForm;
 import com.example.fridge_inventory.repository.PurchaseRepository;
 
 /**
- * 「買った」の一覧・登録・削除を担当する。
+ * 「買った」の一覧・詳細・登録・削除を担当する。
  * 削除するときは、在庫がマイナスにならないかを確かめてから消す。
  */
 @Service
@@ -30,6 +31,12 @@ public class PurchaseService {
     @Transactional(readOnly = true)
     public List<Purchase> findAllNewestFirst() {
         return purchaseRepository.findAll(Sort.by(Sort.Direction.DESC, "purchasedDate", "id"));
+    }
+
+    /** 買った記録を1件探す（詳細画面用） */
+    @Transactional(readOnly = true)
+    public Optional<Purchase> findById(Long id) {
+        return purchaseRepository.findById(id);
     }
 
     @Transactional

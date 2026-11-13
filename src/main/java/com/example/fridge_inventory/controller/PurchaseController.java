@@ -1,5 +1,7 @@
 package com.example.fridge_inventory.controller;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.fridge_inventory.entity.Purchase;
 import com.example.fridge_inventory.entity.StorageType;
 import com.example.fridge_inventory.form.PurchaseForm;
 import com.example.fridge_inventory.service.PurchaseDeleteRejectedException;
@@ -21,7 +24,8 @@ import jakarta.validation.Valid;
  * 「買った」機能の窓口。
  *   GET  /purchases             … 買った記録の一覧
  *   GET  /purchases/new         … 登録画面
- *   POST /purchases             … 登録処理（保存は PurchaseService に任せる）
+ *   POST /purchases             … 登録処理
+ *   GET  /purchases/{id}        … 詳細画面（ここから削除できる）
  *   POST /purchases/{id}/delete … 削除処理（在庫の確認は PurchaseService に任せる）
  */
 @Controller
@@ -59,15 +63,28 @@ public class PurchaseController {
         return "redirect:/purchases";
     }
 
+    @GetMapping("/{id}")
+    public String detail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Purchase> purchase = purchaseService.findById(id);
+        if (purchase.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "その記録は見つかりません");
+            return "redirect:/purchases";
+        }
+        model.addAttribute("purchase", purchase.get());
+        return "purchases/detail";
+    }
+
     // HTMLのformはGETとPOSTしか送れないので、削除もPOSTで受ける
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             purchaseService.delete(id);
             redirectAttributes.addFlashAttribute("message", "削除しました");
+            return "redirect:/purchases";
         } catch (PurchaseDeleteRejectedException e) {
+            // 断られたときは、詳細画面に戻して理由を見せる
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/purchases/" + id;
         }
-        return "redirect:/purchases";
     }
 }
