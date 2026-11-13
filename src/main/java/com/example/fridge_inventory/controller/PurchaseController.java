@@ -17,15 +17,18 @@ import com.example.fridge_inventory.entity.StorageType;
 import com.example.fridge_inventory.form.PurchaseForm;
 import com.example.fridge_inventory.service.PurchaseDeleteRejectedException;
 import com.example.fridge_inventory.service.PurchaseService;
+import com.example.fridge_inventory.service.PurchaseUpdateRejectedException;
 
 import jakarta.validation.Valid;
 
 /**
  * 「買った」機能の窓口。
- *   GET  /purchases             … 買った記録の一覧
+ *   GET  /purchases             … 記録の一覧
  *   GET  /purchases/new         … 登録画面
  *   POST /purchases             … 登録処理
- *   GET  /purchases/{id}        … 詳細画面（ここから削除できる）
+ *   GET  /purchases/{id}        … 詳細画面（ここから編集・削除できる）
+ *   GET  /purchases/{id}/edit   … 編集画面
+ *   POST /purchases/{id}        … 編集処理（在庫の確認は PurchaseService に任せる）
  *   POST /purchases/{id}/delete … 削除処理（在庫の確認は PurchaseService に任せる）
  */
 @Controller
@@ -72,6 +75,40 @@ public class PurchaseController {
         }
         model.addAttribute("purchase", purchase.get());
         return "purchases/detail";
+    }
+
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        Optional<Purchase> purchase = purchaseService.findById(id);
+        if (purchase.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "その記録は見つかりません");
+            return "redirect:/purchases";
+        }
+        model.addAttribute("purchaseForm", PurchaseForm.from(purchase.get()));
+        model.addAttribute("purchaseId", id);
+        model.addAttribute("storageTypes", StorageType.values());
+        return "purchases/form";
+    }
+
+    @PostMapping("/{id}")
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute PurchaseForm purchaseForm,
+                         BindingResult bindingResult,
+                         Model model,
+                         RedirectAttributes redirectAttributes) {
+        if (!bindingResult.hasErrors()) {
+            try {
+                purchaseService.update(id, purchaseForm);
+                redirectAttributes.addFlashAttribute("message", "変更しました");
+                return "redirect:/purchases/" + id;
+            } catch (PurchaseUpdateRejectedException e) {
+                // 特定の入力欄ではなく、画面全体へのエラーとして出す
+                bindingResult.reject("rejected", e.getMessage());
+            }
+        }
+        model.addAttribute("purchaseId", id);
+        model.addAttribute("storageTypes", StorageType.values());
+        return "purchases/form";
     }
 
     // HTMLのformはGETとPOSTしか送れないので、削除もPOSTで受ける

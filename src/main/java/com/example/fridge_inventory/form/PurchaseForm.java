@@ -16,7 +16,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * 「買った」画面の入力を受け取るためのクラス。
+ * 「買った」画面（登録・編集）の入力を受け取るためのクラス。
  * 画面では 0.5 のような普通の数で入力し、保存するときに100倍の整数へ変換する。
  * 入力チェックはここで行い、Entityは保存の形だけに集中させる。
  */
@@ -56,19 +56,47 @@ public class PurchaseForm {
     private String note;
 
     /**
-     * 入力内容をEntityに詰め替える。数量はここで100倍の整数にする。
-     * 例：0.5 → 50、2 → 200
+     * 保存済みの記録から、編集画面に最初から入れておく値を作る。
+     * 数量は100倍の整数を元に戻す。例：250 → 2.5、300 → 3
      */
-    public Purchase toEntity() {
-        Purchase purchase = new Purchase();
+    public static PurchaseForm from(Purchase purchase) {
+        PurchaseForm form = new PurchaseForm();
+        BigDecimal quantity = BigDecimal.valueOf(purchase.getQuantity(), 2).stripTrailingZeros();
+        if (quantity.scale() < 0) {
+            quantity = quantity.setScale(0); // 10 が 1E+1 と表示されるのを防ぐ
+        }
+        form.name = purchase.getName();
+        form.quantity = quantity;
+        form.unit = purchase.getUnit();
+        form.category = purchase.getCategory();
+        form.storageType = purchase.getStorageType();
+        form.expiryDate = purchase.getExpiryDate();
+        form.purchasedDate = purchase.getPurchasedDate();
+        form.note = purchase.getNote();
+        return form;
+    }
+
+    /** 入力された数量を100倍の整数にする。例：0.5 → 50 */
+    public int quantityInHundredths() {
+        return quantity.movePointRight(2).intValueExact();
+    }
+
+    /** 入力内容を、渡された記録に上書きする（登録でも編集でも使う） */
+    public void applyTo(Purchase purchase) {
         purchase.setName(name);
-        purchase.setQuantity(quantity.movePointRight(2).intValueExact());
+        purchase.setQuantity(quantityInHundredths());
         purchase.setUnit(unit);
         purchase.setCategory(category);
         purchase.setStorageType(storageType);
         purchase.setExpiryDate(expiryDate);
         purchase.setPurchasedDate(purchasedDate);
         purchase.setNote(note);
+    }
+
+    /** 入力内容から、新しい記録を作る */
+    public Purchase toEntity() {
+        Purchase purchase = new Purchase();
+        applyTo(purchase);
         return purchase;
     }
 

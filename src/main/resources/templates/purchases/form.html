@@ -1,28 +1,33 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('買った')}"></head>
+<head th:replace="~{fragments/layout :: head(${purchaseId == null} ? '買った' : '記録を直す')}"></head>
 <body>
 <div class="app">
 
-  <!-- 'purchase-new' を渡すと「買った」に色が付く -->
-  <nav th:replace="~{fragments/layout :: sidebar('purchase-new')}"></nav>
+  <!-- 登録のときは「買った」、編集のときは「記録の編集」に色が付く -->
+  <nav th:replace="~{fragments/layout :: sidebar(${purchaseId == null} ? 'purchase-new' : 'purchases')}"></nav>
 
   <main class="main">
 
     <div class="page-header">
       <div>
-        <h1>買った</h1>
-        <p class="page-header__sub">買ったものを1回分ずつ記録します</p>
+        <h1 th:text="${purchaseId == null} ? '買った' : '記録を直す'">買った</h1>
+        <p class="page-header__sub"
+           th:text="${purchaseId == null} ? '買ったものを1回分ずつ記録します' : '入力ミスを直します'">買ったものを1回分ずつ記録します</p>
       </div>
     </div>
 
-    <!-- th:action・th:object・th:field の名前は元のファイルから一文字も変えていない -->
-    <form class="card form" th:action="@{/purchases}" th:object="${purchaseForm}" method="post">
+    <!-- purchaseId があれば編集（POST /purchases/{id}）、なければ登録（POST /purchases） -->
+    <form class="card form"
+          th:action="${purchaseId == null} ? @{/purchases} : @{/purchases/{id}(id=${purchaseId})}"
+          th:object="${purchaseForm}" method="post">
 
-      <!-- どこかに入力エラーがあるときだけ、上にまとめて案内を出す -->
-      <p class="error-box" th:if="${#fields.hasAnyErrors()}">
+      <!-- 入力欄ごとのエラーがあるときだけ、上にまとめて案内を出す -->
+      <p class="error-box" th:if="${#fields.hasErrors('*')}">
         入力内容に直すところがあります。各項目の下の赤い文字を確認してください。
       </p>
+      <!-- 在庫のルールで断られたときのエラー（特定の入力欄に結びつかないもの） -->
+      <p class="error-box" th:each="err : ${#fields.globalErrors()}" th:text="${err}">数量は 1 本より少なくできません</p>
 
       <div class="field">
         <label for="name">品目名</label>
@@ -80,8 +85,9 @@
       </div>
 
       <div class="form-actions">
-        <a class="btn btn--ghost" th:href="@{/purchases}">一覧へ戻る</a>
-        <button class="btn btn--primary" type="submit">記録する</button>
+        <a class="btn btn--ghost" th:if="${purchaseId == null}" th:href="@{/purchases}">一覧へ戻る</a>
+        <a class="btn btn--ghost" th:unless="${purchaseId == null}" th:href="@{/purchases/{id}(id=${purchaseId})}">詳細へ戻る</a>
+        <button class="btn btn--primary" type="submit" th:text="${purchaseId == null} ? '記録する' : '変更する'">記録する</button>
       </div>
     </form>
 

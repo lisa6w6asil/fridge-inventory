@@ -63,4 +63,35 @@ public class PurchaseService {
 
         purchaseRepository.delete(purchase);
     }
+
+    /**
+     * 買った記録を書き換える。
+     * ・すでに使った分より少ない数量にはできない
+     * ・使った記録がある在庫は、品目名・期限・保存方法を変えられない
+     */
+    @Transactional
+    public void update(Long id, PurchaseForm form) {
+        Purchase purchase = purchaseRepository.findById(id)
+                .orElseThrow(() -> new PurchaseUpdateRejectedException(
+                        "その記録は見つかりません（すでに削除されている可能性があります）"));
+
+        String oldKey = StockItem.keyOf(purchase.getName(), purchase.getExpiryDate(), purchase.getStorageType());
+        String newKey = StockItem.keyOf(form.getName(), form.getExpiryDate(), form.getStorageType());
+        long remainingWithout = stockService.remainingOf(oldKey) - purchase.getQuantity();
+
+        if (oldKey.equals(newKey)) {
+            if (remainingWithout + form.quantityInHundredths() < 0) {
+                long minimum = -remainingWithout;
+                String minimumDisplay = java.math.BigDecimal.valueOf(minimum, 2).stripTrailingZeros().toPlainString();
+                throw new PurchaseUpdateRejectedException(
+                        "すでに使った分があるため、数量は " + minimumDisplay + " " + purchase.getUnit() + " より少なくできません");
+            }
+        } else if (remainingWithout < 0) {
+            throw new PurchaseUpdateRejectedException(
+                    "「" + purchase.getName() + "」はすでに使った記録があるため、品目名・期限・保存方法は変えられません");
+        }
+
+        form.applyTo(purchase);
+        purchaseRepository.save(purchase);
+    }
 }

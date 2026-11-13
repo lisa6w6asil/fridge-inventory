@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head('買った記録の詳細')}"></head>
+<head th:replace="~{fragments/layout :: head('記録の詳細')}"></head>
 <body>
 <div class="app">
 
@@ -15,6 +15,7 @@
       </div>
     </div>
 
+    <p class="card" th:if="${message}" th:text="${message}">変更しました</p>
     <p class="error-box" th:if="${errorMessage}" th:text="${errorMessage}">削除できません</p>
 
     <section class="card">
@@ -33,6 +34,7 @@
 
       <div class="form-actions">
         <a class="btn btn--ghost" th:href="@{/purchases}">一覧へ戻る</a>
+        <a class="btn btn--primary" th:href="@{/purchases/{id}/edit(id=${purchase.id})}">編集</a>
         <form th:action="@{/purchases/{id}/delete(id=${purchase.id})}" method="post"
               onsubmit="return confirm('この記録を削除しますか？');">
           <button class="btn btn--ghost" type="submit">削除</button>
